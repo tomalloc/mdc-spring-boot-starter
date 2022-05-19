@@ -1,0 +1,86 @@
+plugins {
+    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    id 'java-library'
+}
+
+ext {
+    springBootVersion = '2.6.0'
+}
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.boot:spring-boot-dependencies:${springBootVersion}"
+    }
+}
+
+
+repositories {
+    mavenLocal()
+    maven {
+        url = 'https://maven.aliyun.com/repository/public'
+    }
+}
+
+
+
+configurations.all {
+    resolutionStrategy {
+        cacheChangingModulesFor 0, "seconds"
+        cacheDynamicVersionsFor 0, "seconds"
+    }
+}
+
+tasks.withType(JavaCompile) {
+    options.warnings = true
+    options.encoding = 'UTF-8'
+    options.compilerArgs += ['-parameters', '-Xdoclint:none', '-Xlint:none', '-nowarn']
+}
+
+
+configurations{
+    implementation.canBeResolved = true
+    api.canBeResolved = true
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+
+    registerFeature('optional') {
+        usingSourceSet(sourceSets.main)
+    }
+}
+
+
+dependencies {
+    //servlet
+    optionalApi 'org.springframework:spring-webmvc'
+    optionalApi 'jakarta.servlet:jakarta.servlet-api'
+
+    optionalApi 'io.github.openfeign:feign-core:11.7'
+    api 'org.slf4j:slf4j-api'
+
+
+    api('org.springframework.boot:spring-boot-autoconfigure')
+
+    annotationProcessor('org.springframework.boot:spring-boot-autoconfigure-processor')
+    annotationProcessor('org.springframework.boot:spring-boot-configuration-processor')
+
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    testCompileOnly 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
+
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+group = 'cn.github.tomalloc.mdc'
+version = '0.0.1-SNAPSHOT'
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
